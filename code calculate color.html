@@ -64,7 +64,7 @@
       <div class="glass-card rounded-2xl shadow-xl p-6">
        <div class="flex items-center gap-2 mb-4">
         <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-        <h2 id="before-title" class="text-lg font-semibold text-slate-700">ค่าสีก่อนย้อม (Before Dyeing)</h2>
+        <h2 id="before-title" class="text-lg font-semibold text-slate-700">ค่าสี��่อนย้อม (Before Dyeing)</h2>
        </div><!-- Image Upload Before -->
        <div class="mb-4"><label class="block text-sm font-medium text-slate-600 mb-2">รูปภาพก่อนย้อม (วิเคราะห์สีอัตโนมัติ)</label>
         <div class="relative"><input type="file" id="image_before" accept="image/*" onchange="handleImageUpload(event, 'before')" class="hidden"> <label for="image_before" class="flex items-center justify-center w-full h-40 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all overflow-hidden">
@@ -146,7 +146,7 @@
           </div>
          </div>
          <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-200">
-          <p class="text-sm text-emerald-600 font-medium mb-2">หลังย้อม (After)</p>
+          <p class="text-sm text-emerald-600 font-medium mb-2">หลังย้��ม (After)</p>
           <div id="result_image_after" class="w-full h-48 bg-white rounded-lg overflow-hidden flex items-center justify-center"><span class="text-slate-400">ไม่มีรูปภาพ</span>
           </div>
          </div>
@@ -190,18 +190,31 @@
          </tbody>
         </table>
        </div><!-- Delta Values -->
-       <div class="grid grid-cols-3 gap-4 mb-6">
-        <div class="bg-slate-100 rounded-xl p-4 text-center">
-         <p class="text-sm text-slate-500 mb-1">ΔL*</p>
-         <p id="delta_L" class="text-xl font-bold text-slate-700 mono">-</p>
+       <div class="mb-6">
+        <div class="flex justify-between items-center mb-3">
+         <h3 class="text-md font-semibold text-slate-700">ค่าความแตกต่างของสี (Delta Values)</h3><button onclick="copyAllDeltaValues()" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-medium rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg> Copy ทั้งหมด </button>
         </div>
-        <div class="bg-slate-100 rounded-xl p-4 text-center">
-         <p class="text-sm text-slate-500 mb-1">Δa*</p>
-         <p id="delta_a" class="text-xl font-bold text-slate-700 mono">-</p>
-        </div>
-        <div class="bg-slate-100 rounded-xl p-4 text-center">
-         <p class="text-sm text-slate-500 mb-1">Δb*</p>
-         <p id="delta_b" class="text-xl font-bold text-slate-700 mono">-</p>
+        <div class="grid grid-cols-3 gap-4">
+         <div class="bg-slate-100 rounded-xl p-4 text-center relative group">
+          <p class="text-sm text-slate-500 mb-1">ΔL*</p>
+          <p id="delta_L" class="text-xl font-bold text-slate-700 mono">-</p><button onclick="copyValue('delta_L', 'ΔL*')" class="absolute top-2 right-2 bg-blue-500 text-white p-1.5 rounded-lg hover:bg-blue-600 transition-all opacity-0 group-hover:opacity-100">
+           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+           </svg></button>
+         </div>
+         <div class="bg-slate-100 rounded-xl p-4 text-center relative group">
+          <p class="text-sm text-slate-500 mb-1">Δa*</p>
+          <p id="delta_a" class="text-xl font-bold text-slate-700 mono">-</p><button onclick="copyValue('delta_a', 'Δa*')" class="absolute top-2 right-2 bg-blue-500 text-white p-1.5 rounded-lg hover:bg-blue-600 transition-all opacity-0 group-hover:opacity-100">
+           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+           </svg></button>
+         </div>
+         <div class="bg-slate-100 rounded-xl p-4 text-center relative group">
+          <p class="text-sm text-slate-500 mb-1">Δb*</p>
+          <p id="delta_b" class="text-xl font-bold text-slate-700 mono">-</p><button onclick="copyValue('delta_b', 'Δb*')" class="absolute top-2 right-2 bg-blue-500 text-white p-1.5 rounded-lg hover:bg-blue-600 transition-all opacity-0 group-hover:opacity-100">
+           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+           </svg></button>
+         </div>
         </div>
        </div><!-- Interpretation Guide -->
        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
@@ -215,7 +228,7 @@
            <li><span class="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>95–105% = ผ่าน (Pass)</li>
            <li><span class="inline-block w-3 h-3 rounded-full bg-amber-500 mr-2"></span>90–95% = อ่อนเล็กน้อย</li>
            <li><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>&lt;90% = สีอ่อน</li>
-           <li><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>&gt;110% = สีเข้มเกิน</li>
+           <li><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>&gt;110% = สีเ���้มเกิน</li>
           </ul>
          </div>
          <div>
@@ -260,7 +273,7 @@
       </div>
      </div><!-- Footer -->
      <footer class="text-center text-cyan-200 text-sm py-4">
-      <p>Textile Dyeing Color Calculator © 2024 | สำหรับใช้ในโรงงานสิ่งทอ</p>
+      <p>Textile Dyeing Color Calculator © 2024 | สำหรับ��ช้ในโรงงานสิ่งทอ</p>
      </footer>
     </div>
    </main>
@@ -553,7 +566,7 @@
       // Set status for Color Strength
       const strengthStatus = document.getElementById('strength_status');
       if (colorStrength >= 95 && colorStrength <= 105) {
-        strengthStatus.textContent = 'ผ่าน';
+        strengthStatus.textContent = 'ผ่า��';
         strengthStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-excellent';
       } else if (colorStrength >= 90 && colorStrength < 95) {
         strengthStatus.textContent = 'อ่อนเล็กน้อย';
@@ -682,7 +695,7 @@
         link.href = canvas.toDataURL('image/png');
         link.click();
       } catch (error) {
-        showInlineError('ไม่สามารถ Export PNG ได้');
+        showInlineError('ไม�����ามารถ Export PNG ได้');
       }
     }
 
@@ -705,6 +718,89 @@
         showInlineError('ไม่สามารถ Export PDF ได้');
       }
     }
+
+    function copyValue(elementId, valueName) {
+      const element = document.getElementById(elementId);
+      const value = element.textContent;
+      
+      if (value === '-') {
+        showInlineError('ยังไม่มีค่าให้ Copy');
+        return;
+      }
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(value).then(() => {
+        showCopySuccess(`Copy ${valueName} สำเร็จ: ${value}`);
+      }).catch(() => {
+        // Fallback method
+        const textArea = document.createElement('textarea');
+        textArea.value = value;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showCopySuccess(`Copy ${valueName} สำเร็จ: ${value}`);
+        } catch (err) {
+          showInlineError('ไม่สามารถ Copy ได้');
+        }
+        document.body.removeChild(textArea);
+      });
+    }
+
+    function showCopySuccess(message) {
+      let copyDiv = document.getElementById('copy-success');
+      if (!copyDiv) {
+        copyDiv = document.createElement('div');
+        copyDiv.id = 'copy-success';
+        copyDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+        document.body.appendChild(copyDiv);
+      }
+      copyDiv.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+        </svg>
+        <span>${message}</span>
+      `;
+      copyDiv.style.display = 'flex';
+      setTimeout(() => {
+        copyDiv.style.display = 'none';
+      }, 2000);
+    }
+
+    function copyAllDeltaValues() {
+      const deltaL = document.getElementById('delta_L').textContent;
+      const deltaA = document.getElementById('delta_a').textContent;
+      const deltaB = document.getElementById('delta_b').textContent;
+      
+      if (deltaL === '-' || deltaA === '-' || deltaB === '-') {
+        showInlineError('ยังไม่มีค่าให้ Copy');
+        return;
+      }
+      
+      const allValues = `ΔL* = ${deltaL}\nΔa* = ${deltaA}\nΔb* = ${deltaB}`;
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(allValues).then(() => {
+        showCopySuccess('Copy ค่า Delta ทั้งหมดสำเร็จ!');
+      }).catch(() => {
+        // Fallback method
+        const textArea = document.createElement('textarea');
+        textArea.value = allValues;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showCopySuccess('Copy ค่า Delta ทั้งหมดสำเร็จ!');
+        } catch (err) {
+          showInlineError('ไม่สามารถ Copy ได้');
+        }
+        document.body.removeChild(textArea);
+      });
+    }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c17e3b8b44ed03e',t:'MTc2OTAwOTgxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c1804923664d03e',t:'MTc2OTAxMTE1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
