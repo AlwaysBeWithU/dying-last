@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="th" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Textile Dyeing Color Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Sarabun', sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .input-field {
+      transition: all 0.2s ease;
+    }
+    .input-field:focus {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    .result-card {
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+    }
+    .status-excellent { background: linear-gradient(135deg, #059669, #10b981); }
+    .status-pass { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+    .status-warning { background: linear-gradient(135deg, #d97706, #f59e0b); }
+    .status-fail { background: linear-gradient(135deg, #dc2626, #ef4444); }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-slate-100 overflow-auto">
+  <div class="min-h-full gradient-bg"><!-- Header -->
+   <header class="py-6 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+     <div class="inline-flex items-center gap-3 mb-2">
+      <svg class="w-10 h-10 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+      </svg>
+      <h1 id="app-title" class="text-2xl md:text-3xl font-bold text-white tracking-wide">Textile Dyeing Color Calculator</h1>
+     </div>
+     <p class="text-cyan-200 text-sm md:text-base">ระบบคำนวณค่าสีผ้าก่อนและหลังการย้อม สำหรับโรงงานสิ่งทอ</p>
+    </div>
+   </header>
+   <main class="px-4 pb-8">
+    <div class="max-w-4xl mx-auto space-y-6"><!-- Input Section -->
+     <div class="grid md:grid-cols-2 gap-6"><!-- Before Dyeing -->
+      <div class="glass-card rounded-2xl shadow-xl p-6">
+       <div class="flex items-center gap-2 mb-4">
+        <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+        <h2 id="before-title" class="text-lg font-semibold text-slate-700">ค่าสีก่อนย้อม (Before Dyeing)</h2>
+       </div><!-- Image Upload Before -->
+       <div class="mb-4"><label class="block text-sm font-medium text-slate-600 mb-2">รูปภาพก่อนย้อม (วิเคราะห์สีอัตโนมัติ)</label>
+        <div class="relative"><input type="file" id="image_before" accept="image/*" onchange="handleImageUpload(event, 'before')" class="hidden"> <label for="image_before" class="flex items-center justify-center w-full h-40 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all overflow-hidden">
+          <div id="preview_before" class="flex flex-col items-center justify-center text-blue-500 w-full h-full">
+           <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+           </svg><span class="text-sm">คลิกเพื่ออัปโหลดรูป</span>
+          </div></label>
+        </div>
+        <div id="analyzing_before" class="hidden mt-2 text-sm text-blue-600 flex items-center gap-2">
+         <svg class="animate-spin h-4 w-4" fill="none" viewbox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+         </svg> กำลังวิเคราะห์สี...
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div><label class="block text-sm font-medium text-slate-600 mb-1">L* (Lightness)</label> <input type="number" id="L_before" step="0.01" placeholder="0.00 - 100.00" class="input-field w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none mono text-lg">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-600 mb-1">a* (Red-Green)</label> <input type="number" id="a_before" step="0.01" placeholder="-128 to +128" class="input-field w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none mono text-lg">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-600 mb-1">b* (Yellow-Blue)</label> <input type="number" id="b_before" step="0.01" placeholder="-128 to +128" class="input-field w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none mono text-lg">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-600 mb-1">Reflectance (R)</label> <input type="number" id="R_before" step="0.0001" placeholder="0.0000 - 1.0000" class="input-field w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none mono text-lg">
+        </div>
+       </div>
+      </div><!-- After Dyeing -->
+      <div class="glass-card rounded-2xl shadow-xl p-6">
+       <div class="flex items-center gap-2 mb-4">
+        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+        <h2 id="after-title" class="text-lg font-semibold text-slate-700">ค่าสีหลังย้อม (After Dyeing)</h2>
+       </div><!-- Image Upload After -->
+       <div class="mb-4"><label class="block text-sm font-medium text-slate-600 mb-2">รูปภาพหลังย้อม (วิเคราะห์สีอัตโนมัติ)</label>
+        <div class="relative"><input type="file" id="image_after" accept="image/*" onchange="handleImageUpload(event, 'after')" class="hidden"> <label for="image_after" class="flex items-center justify-center w-full h-40 border-2 border-dashed border-emerald-300 rounded-xl cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-all overflow-hidden">
+          <div id="preview_after" class="flex flex-col items-center justify-center text-emerald-500 w-full h-full">
+           <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+           </svg><span class="text-sm">คลิกเพื่ออัปโหลดรูป</span>
+          </div></label>
+        </div>
+        <div id="analyzing_after" class="hidden mt-2 text-sm text-emerald-600 flex items-center gap-2">
+         <svg class="animate-spin h-4 w-4" fill="none" viewbox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+         </svg> กำลังวิเคราะห์สี...
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div><label class="block text-sm font-medium text-slate-600 mb-1">L* (Lightness)</label> <input type="number" id="L_after" step="0.01" placeholder="0.00 - 100.00" class="input-field w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:outline-none mono text-lg">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-600 mb-1">a* (Red-Green)</label> <input type="number" id="a_after" step="0.01" placeholder="-128 to +128" class="input-field w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:outline-none mono text-lg">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-600 mb-1">b* (Yellow-Blue)</label> <input type="number" id="b_after" step="0.01" placeholder="-128 to +128" class="input-field w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:outline-none mono text-lg">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-600 mb-1">Reflectance (R)</label> <input type="number" id="R_after" step="0.0001" placeholder="0.0000 - 1.0000" class="input-field w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:outline-none mono text-lg">
+        </div>
+       </div>
+      </div>
+     </div><!-- Buttons -->
+     <div class="flex flex-wrap justify-center gap-4"><button onclick="calculate()" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+       </svg> Calculate </button> <button onclick="resetForm()" class="px-8 py-3 bg-slate-500 text-white font-semibold rounded-xl shadow-lg hover:bg-slate-600 hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+       </svg> Reset </button>
+     </div><!-- Results Section -->
+     <div id="results" class="hidden">
+      <div class="glass-card rounded-2xl shadow-xl p-6 result-card" id="results-content">
+       <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-slate-700 flex items-center gap-2">
+         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+         </svg> ผลการคำนวณ (Results)</h2>
+        <div class="flex gap-2"><button onclick="exportPNG()" class="px-4 py-2 bg-emerald-500 text-white text-sm font-medium rounded-lg hover:bg-emerald-600 transition-colors flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg> PNG </button> <button onclick="exportPDF()" class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg> PDF </button>
+        </div>
+       </div><!-- Image Comparison -->
+       <div id="image_comparison" class="hidden mb-6">
+        <h3 class="text-md font-semibold text-slate-700 mb-3">เปรียบเทียบภาพก่อนและหลังย้อม</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div class="bg-blue-50 rounded-xl p-3 border border-blue-200">
+          <p class="text-sm text-blue-600 font-medium mb-2">ก่อนย้อม (Before)</p>
+          <div id="result_image_before" class="w-full h-48 bg-white rounded-lg overflow-hidden flex items-center justify-center"><span class="text-slate-400">ไม่มีรูปภาพ</span>
+          </div>
+         </div>
+         <div class="bg-emerald-50 rounded-xl p-3 border border-emerald-200">
+          <p class="text-sm text-emerald-600 font-medium mb-2">หลังย้อม (After)</p>
+          <div id="result_image_after" class="w-full h-48 bg-white rounded-lg overflow-hidden flex items-center justify-center"><span class="text-slate-400">ไม่มีรูปภาพ</span>
+          </div>
+         </div>
+        </div>
+       </div><!-- K/S Values -->
+       <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+         <p class="text-sm text-blue-600 font-medium mb-1">K/S ก่อนย้อม (Before)</p>
+         <p id="ks_before" class="text-2xl font-bold text-blue-800 mono">-</p>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+         <p class="text-sm text-emerald-600 font-medium mb-1">K/S หลังย้อม (After)</p>
+         <p id="ks_after" class="text-2xl font-bold text-emerald-800 mono">-</p>
+        </div>
+       </div><!-- Main Results Table -->
+       <div class="overflow-x-auto mb-6">
+        <table class="w-full border-collapse">
+         <thead>
+          <tr class="bg-slate-700 text-white">
+           <th class="px-4 py-3 text-left rounded-tl-lg">Parameter</th>
+           <th class="px-4 py-3 text-center">Value</th>
+           <th class="px-4 py-3 text-center rounded-tr-lg">Status</th>
+          </tr>
+         </thead>
+         <tbody class="divide-y divide-slate-200">
+          <tr class="bg-white hover:bg-slate-50">
+           <td class="px-4 py-3 font-medium text-slate-700">Color Strength (%)</td>
+           <td id="color_strength" class="px-4 py-3 text-center mono font-semibold text-lg">-</td>
+           <td class="px-4 py-3 text-center"><span id="strength_status" class="px-3 py-1 rounded-full text-white text-sm font-medium">-</span></td>
+          </tr>
+          <tr class="bg-slate-50 hover:bg-slate-100">
+           <td class="px-4 py-3 font-medium text-slate-700">Color Loss (%)</td>
+           <td id="color_loss" class="px-4 py-3 text-center mono font-semibold text-lg">-</td>
+           <td class="px-4 py-3 text-center"><span id="loss_status" class="px-3 py-1 rounded-full text-white text-sm font-medium">-</span></td>
+          </tr>
+          <tr class="bg-white hover:bg-slate-50">
+           <td class="px-4 py-3 font-medium text-slate-700">ΔE (Color Difference)</td>
+           <td id="delta_e" class="px-4 py-3 text-center mono font-semibold text-lg">-</td>
+           <td class="px-4 py-3 text-center"><span id="de_status" class="px-3 py-1 rounded-full text-white text-sm font-medium">-</span></td>
+          </tr>
+         </tbody>
+        </table>
+       </div><!-- Delta Values -->
+       <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-slate-100 rounded-xl p-4 text-center">
+         <p class="text-sm text-slate-500 mb-1">ΔL*</p>
+         <p id="delta_L" class="text-xl font-bold text-slate-700 mono">-</p>
+        </div>
+        <div class="bg-slate-100 rounded-xl p-4 text-center">
+         <p class="text-sm text-slate-500 mb-1">Δa*</p>
+         <p id="delta_a" class="text-xl font-bold text-slate-700 mono">-</p>
+        </div>
+        <div class="bg-slate-100 rounded-xl p-4 text-center">
+         <p class="text-sm text-slate-500 mb-1">Δb*</p>
+         <p id="delta_b" class="text-xl font-bold text-slate-700 mono">-</p>
+        </div>
+       </div><!-- Interpretation Guide -->
+       <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <h3 class="font-semibold text-amber-800 mb-2 flex items-center gap-2">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg> การแปลผล (Interpretation)</h3>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+         <div>
+          <p class="font-medium text-slate-700 mb-1">Color Strength:</p>
+          <ul class="space-y-1 text-slate-600">
+           <li><span class="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>95–105% = ผ่าน (Pass)</li>
+           <li><span class="inline-block w-3 h-3 rounded-full bg-amber-500 mr-2"></span>90–95% = อ่อนเล็กน้อย</li>
+           <li><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>&lt;90% = สีอ่อน</li>
+           <li><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>&gt;110% = สีเข้มเกิน</li>
+          </ul>
+         </div>
+         <div>
+          <p class="font-medium text-slate-700 mb-1">ΔE Interpretation:</p>
+          <ul class="space-y-1 text-slate-600">
+           <li><span class="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>≤ 0.8 = Excellent</li>
+           <li><span class="inline-block w-3 h-3 rounded-full bg-cyan-500 mr-2"></span>0.8–1.0 = Pass</li>
+           <li><span class="inline-block w-3 h-3 rounded-full bg-amber-500 mr-2"></span>1.0–1.5 = Acceptable</li>
+           <li><span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>&gt;1.5 = Fail</li>
+           <li><span class="inline-block w-3 h-3 rounded-full bg-red-800 mr-2"></span>&gt;3.0 = Clearly visible</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Formula Reference -->
+     <div class="glass-card rounded-2xl shadow-xl p-6">
+      <h2 class="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2">
+       <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+       </svg> สูตรที่ใช้คำนวณ (Formulas)</h2>
+      <div class="grid md:grid-cols-2 gap-6 text-sm">
+       <div class="space-y-4">
+        <div class="bg-slate-50 rounded-lg p-3">
+         <p class="font-semibold text-slate-700 mb-1">1. ค่าความเข้มสี (K/S)</p>
+         <p class="mono text-blue-700 bg-white px-3 py-2 rounded border">K/S = (1 - R)² / (2R)</p>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3">
+         <p class="font-semibold text-slate-700 mb-1">2. Color Strength (%)</p>
+         <p class="mono text-blue-700 bg-white px-3 py-2 rounded border text-xs">(K/S_after ÷ K/S_before) × 100</p>
+        </div>
+       </div>
+       <div class="space-y-4">
+        <div class="bg-slate-50 rounded-lg p-3">
+         <p class="font-semibold text-slate-700 mb-1">3. Color Loss (%)</p>
+         <p class="mono text-blue-700 bg-white px-3 py-2 rounded border text-xs">(1 - (K/S_after ÷ K/S_before)) × 100</p>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-3">
+         <p class="font-semibold text-slate-700 mb-1">4. ΔE (Color Difference)</p>
+         <p class="mono text-blue-700 bg-white px-3 py-2 rounded border text-xs">√[(ΔL)² + (Δa)² + (Δb)²]</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Footer -->
+     <footer class="text-center text-cyan-200 text-sm py-4">
+      <p>Textile Dyeing Color Calculator © 2024 | สำหรับใช้ในโรงงานสิ่งทอ</p>
+     </footer>
+    </div>
+   </main>
+  </div>
+  <script>
+    const defaultConfig = {
+      app_title: "Textile Dyeing Color Calculator",
+      before_section_title: "ค่าสีก่อนย้อม (Before Dyeing)",
+      after_section_title: "ค่าสีหลังย้อม (After Dyeing)"
+    };
+
+    let config = { ...defaultConfig };
+    let uploadedImages = {
+      before: null,
+      after: null
+    };
+
+    function handleImageUpload(event, type) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showInlineError('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+        return;
+      }
+
+      // Show analyzing indicator
+      const analyzingDiv = document.getElementById(`analyzing_${type}`);
+      analyzingDiv.classList.remove('hidden');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedImages[type] = e.target.result;
+        
+        // Create image element for analysis
+        const img = new Image();
+        img.onload = function() {
+          // Analyze color from image
+          analyzeImageColor(img, type);
+          
+          // Display preview with proper sizing
+          const previewDiv = document.getElementById(`preview_${type}`);
+          previewDiv.innerHTML = `
+            <div class="relative w-full h-full">
+              <img src="${e.target.result}" alt="${type}" class="w-full h-full object-contain rounded-lg" loading="lazy" 
+                onerror="this.alt='Image failed to load'; this.style.display='none';">
+              <button onclick="removeImage('${type}')" class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          `;
+          
+          // Hide analyzing indicator
+          analyzingDiv.classList.add('hidden');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function analyzeImageColor(img, type) {
+      // Create canvas to analyze image
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas size to image size
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      // Draw image on canvas
+      ctx.drawImage(img, 0, 0);
+      
+      // Get image data from center region (avoiding edges)
+      const centerX = Math.floor(img.width / 2);
+      const centerY = Math.floor(img.height / 2);
+      const sampleSize = Math.min(img.width, img.height) / 4; // Sample 1/4 of the smaller dimension
+      
+      const startX = Math.max(0, centerX - sampleSize / 2);
+      const startY = Math.max(0, centerY - sampleSize / 2);
+      const width = Math.min(sampleSize, img.width - startX);
+      const height = Math.min(sampleSize, img.height - startY);
+      
+      const imageData = ctx.getImageData(startX, startY, width, height);
+      const pixels = imageData.data;
+      
+      // Calculate average RGB
+      let totalR = 0, totalG = 0, totalB = 0;
+      let pixelCount = 0;
+      
+      for (let i = 0; i < pixels.length; i += 4) {
+        totalR += pixels[i];
+        totalG += pixels[i + 1];
+        totalB += pixels[i + 2];
+        pixelCount++;
+      }
+      
+      const avgR = Math.round(totalR / pixelCount);
+      const avgG = Math.round(totalG / pixelCount);
+      const avgB = Math.round(totalB / pixelCount);
+      
+      // Convert RGB to LAB
+      const lab = rgbToLab(avgR, avgG, avgB);
+      
+      // Calculate Reflectance (R) - approximation based on Lightness
+      // R typically ranges from 0 to 1, and correlates with L* (0-100)
+      // Using a simple approximation: R ≈ (L*/100)^2
+      const reflectance = Math.pow(lab.L / 100, 2);
+      
+      // Fill in the form fields
+      document.getElementById(`L_${type}`).value = lab.L.toFixed(2);
+      document.getElementById(`a_${type}`).value = lab.a.toFixed(2);
+      document.getElementById(`b_${type}`).value = lab.b.toFixed(2);
+      document.getElementById(`R_${type}`).value = reflectance.toFixed(4);
+      
+      // Show success message
+      showSuccessMessage(`วิเคราะห์สี${type === 'before' ? 'ก่อน' : 'หลัง'}ย้อมสำเร็จ!`);
+    }
+
+    function rgbToLab(r, g, b) {
+      // Convert RGB to XYZ
+      let red = r / 255;
+      let green = g / 255;
+      let blue = b / 255;
+      
+      // Apply gamma correction
+      red = (red > 0.04045) ? Math.pow((red + 0.055) / 1.055, 2.4) : red / 12.92;
+      green = (green > 0.04045) ? Math.pow((green + 0.055) / 1.055, 2.4) : green / 12.92;
+      blue = (blue > 0.04045) ? Math.pow((blue + 0.055) / 1.055, 2.4) : blue / 12.92;
+      
+      // Convert to XYZ using D65 illuminant
+      let x = red * 0.4124564 + green * 0.3575761 + blue * 0.1804375;
+      let y = red * 0.2126729 + green * 0.7151522 + blue * 0.0721750;
+      let z = red * 0.0193339 + green * 0.1191920 + blue * 0.9503041;
+      
+      // Normalize for D65 white point
+      x = x / 0.95047;
+      y = y / 1.00000;
+      z = z / 1.08883;
+      
+      // Convert XYZ to LAB
+      x = (x > 0.008856) ? Math.pow(x, 1/3) : (7.787 * x + 16/116);
+      y = (y > 0.008856) ? Math.pow(y, 1/3) : (7.787 * y + 16/116);
+      z = (z > 0.008856) ? Math.pow(z, 1/3) : (7.787 * z + 16/116);
+      
+      const L = (116 * y) - 16;
+      const a = 500 * (x - y);
+      const bValue = 200 * (y - z);
+      
+      return { L: L, a: a, b: bValue };
+    }
+
+    function showSuccessMessage(message) {
+      let successDiv = document.getElementById('success-message');
+      if (!successDiv) {
+        successDiv = document.createElement('div');
+        successDiv.id = 'success-message';
+        successDiv.className = 'fixed top-4 right-4 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+        document.body.appendChild(successDiv);
+      }
+      successDiv.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <span>${message}</span>
+      `;
+      successDiv.style.display = 'flex';
+      setTimeout(() => {
+        successDiv.style.display = 'none';
+      }, 2500);
+    }
+
+    function removeImage(type) {
+      uploadedImages[type] = null;
+      const previewDiv = document.getElementById(`preview_${type}`);
+      const color = type === 'before' ? 'blue' : 'emerald';
+      previewDiv.innerHTML = `
+        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <span class="text-sm">คลิกเพื่ออัปโหลดรูป</span>
+      `;
+      previewDiv.className = `flex flex-col items-center justify-center text-${color}-500 w-full h-full`;
+      document.getElementById(`image_${type}`).value = '';
+      
+      // Clear form fields
+      document.getElementById(`L_${type}`).value = '';
+      document.getElementById(`a_${type}`).value = '';
+      document.getElementById(`b_${type}`).value = '';
+      document.getElementById(`R_${type}`).value = '';
+    }
+
+    async function onConfigChange(newConfig) {
+      config = { ...defaultConfig, ...newConfig };
+      
+      const titleEl = document.getElementById('app-title');
+      if (titleEl) titleEl.textContent = config.app_title || defaultConfig.app_title;
+      
+      const beforeEl = document.getElementById('before-title');
+      if (beforeEl) beforeEl.textContent = config.before_section_title || defaultConfig.before_section_title;
+      
+      const afterEl = document.getElementById('after-title');
+      if (afterEl) afterEl.textContent = config.after_section_title || defaultConfig.after_section_title;
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ["app_title", config.app_title || defaultConfig.app_title],
+        ["before_section_title", config.before_section_title || defaultConfig.before_section_title],
+        ["after_section_title", config.after_section_title || defaultConfig.after_section_title]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+
+    // Calculate K/S value using Kubelka-Munk equation
+    function calculateKS(R) {
+      if (R <= 0 || R >= 1) return 0;
+      return Math.pow(1 - R, 2) / (2 * R);
+    }
+
+    // Main calculation function
+    function calculate() {
+      // Get input values
+      const L_before = parseFloat(document.getElementById('L_before').value);
+      const a_before = parseFloat(document.getElementById('a_before').value);
+      const b_before = parseFloat(document.getElementById('b_before').value);
+      const R_before = parseFloat(document.getElementById('R_before').value);
+      
+      const L_after = parseFloat(document.getElementById('L_after').value);
+      const a_after = parseFloat(document.getElementById('a_after').value);
+      const b_after = parseFloat(document.getElementById('b_after').value);
+      const R_after = parseFloat(document.getElementById('R_after').value);
+
+      // Validate inputs
+      if (isNaN(L_before) || isNaN(a_before) || isNaN(b_before) || isNaN(R_before) ||
+          isNaN(L_after) || isNaN(a_after) || isNaN(b_after) || isNaN(R_after)) {
+        showInlineError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+        return;
+      }
+
+      if (R_before <= 0 || R_before >= 1 || R_after <= 0 || R_after >= 1) {
+        showInlineError('ค่า Reflectance (R) ต้องอยู่ระหว่าง 0 ถึง 1 (ไม่รวม 0 และ 1)');
+        return;
+      }
+
+      // Calculate K/S values
+      const KS_before = calculateKS(R_before);
+      const KS_after = calculateKS(R_after);
+
+      // Calculate Color Strength and Color Loss
+      const colorStrength = (KS_after / KS_before) * 100;
+      const colorLoss = (1 - (KS_after / KS_before)) * 100;
+
+      // Calculate Delta values
+      const deltaL = L_after - L_before;
+      const deltaA = a_after - a_before;
+      const deltaB = b_after - b_before;
+
+      // Calculate Delta E
+      const deltaE = Math.sqrt(Math.pow(deltaL, 2) + Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
+
+      // Display results
+      document.getElementById('ks_before').textContent = KS_before.toFixed(2);
+      document.getElementById('ks_after').textContent = KS_after.toFixed(2);
+      document.getElementById('color_strength').textContent = colorStrength.toFixed(2) + '%';
+      document.getElementById('color_loss').textContent = colorLoss.toFixed(2) + '%';
+      document.getElementById('delta_e').textContent = deltaE.toFixed(2);
+      document.getElementById('delta_L').textContent = (deltaL >= 0 ? '+' : '') + deltaL.toFixed(2);
+      document.getElementById('delta_a').textContent = (deltaA >= 0 ? '+' : '') + deltaA.toFixed(2);
+      document.getElementById('delta_b').textContent = (deltaB >= 0 ? '+' : '') + deltaB.toFixed(2);
+
+      // Set status for Color Strength
+      const strengthStatus = document.getElementById('strength_status');
+      if (colorStrength >= 95 && colorStrength <= 105) {
+        strengthStatus.textContent = 'ผ่าน';
+        strengthStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-excellent';
+      } else if (colorStrength >= 90 && colorStrength < 95) {
+        strengthStatus.textContent = 'อ่อนเล็กน้อย';
+        strengthStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-warning';
+      } else if (colorStrength < 90) {
+        strengthStatus.textContent = 'สีอ่อน';
+        strengthStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-fail';
+      } else if (colorStrength > 110) {
+        strengthStatus.textContent = 'สีเข้มเกิน';
+        strengthStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-fail';
+      } else {
+        strengthStatus.textContent = 'Acceptable';
+        strengthStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-pass';
+      }
+
+      // Set status for Color Loss
+      const lossStatus = document.getElementById('loss_status');
+      if (colorLoss <= 5) {
+        lossStatus.textContent = 'ดีมาก';
+        lossStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-excellent';
+      } else if (colorLoss <= 10) {
+        lossStatus.textContent = 'ปกติ';
+        lossStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-pass';
+      } else {
+        lossStatus.textContent = 'สูญเสียมาก';
+        lossStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-fail';
+      }
+
+      // Set status for Delta E
+      const deStatus = document.getElementById('de_status');
+      if (deltaE <= 0.8) {
+        deStatus.textContent = 'Excellent';
+        deStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-excellent';
+      } else if (deltaE <= 1.0) {
+        deStatus.textContent = 'Pass';
+        deStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-pass';
+      } else if (deltaE <= 1.5) {
+        deStatus.textContent = 'Acceptable';
+        deStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-warning';
+      } else if (deltaE <= 3.0) {
+        deStatus.textContent = 'Fail';
+        deStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium status-fail';
+      } else {
+        deStatus.textContent = 'Clearly Visible';
+        deStatus.className = 'px-3 py-1 rounded-full text-white text-sm font-medium bg-red-800';
+      }
+
+      // Display uploaded images in results
+      const imageComparisonDiv = document.getElementById('image_comparison');
+      if (uploadedImages.before || uploadedImages.after) {
+        imageComparisonDiv.classList.remove('hidden');
+        
+        if (uploadedImages.before) {
+          document.getElementById('result_image_before').innerHTML = `
+            <img src="${uploadedImages.before}" alt="Before dyeing" class="w-full h-full object-contain" loading="lazy" 
+              onerror="this.alt='Image failed to load'; this.style.display='none';">
+          `;
+        } else {
+          document.getElementById('result_image_before').innerHTML = '<span class="text-slate-400">ไม่มีรูปภาพ</span>';
+        }
+        
+        if (uploadedImages.after) {
+          document.getElementById('result_image_after').innerHTML = `
+            <img src="${uploadedImages.after}" alt="After dyeing" class="w-full h-full object-contain" loading="lazy" 
+              onerror="this.alt='Image failed to load'; this.style.display='none';">
+          `;
+        } else {
+          document.getElementById('result_image_after').innerHTML = '<span class="text-slate-400">ไม่มีรูปภาพ</span>';
+        }
+      } else {
+        imageComparisonDiv.classList.add('hidden');
+      }
+
+      // Show results section
+      document.getElementById('results').classList.remove('hidden');
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function showInlineError(message) {
+      let errorDiv = document.getElementById('inline-error');
+      if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'inline-error';
+        errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+        document.body.appendChild(errorDiv);
+      }
+      errorDiv.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>${message}</span>
+      `;
+      errorDiv.style.display = 'flex';
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    function resetForm() {
+      document.getElementById('L_before').value = '';
+      document.getElementById('a_before').value = '';
+      document.getElementById('b_before').value = '';
+      document.getElementById('R_before').value = '';
+      document.getElementById('L_after').value = '';
+      document.getElementById('a_after').value = '';
+      document.getElementById('b_after').value = '';
+      document.getElementById('R_after').value = '';
+      
+      // Reset images
+      removeImage('before');
+      removeImage('after');
+      
+      document.getElementById('results').classList.add('hidden');
+    }
+
+    async function exportPNG() {
+      const element = document.getElementById('results-content');
+      try {
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          backgroundColor: '#ffffff',
+          useCORS: true
+        });
+        const link = document.createElement('a');
+        link.download = 'color-calculation-result.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (error) {
+        showInlineError('ไม่สามารถ Export PNG ได้');
+      }
+    }
+
+    async function exportPDF() {
+      const element = document.getElementById('results-content');
+      try {
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          backgroundColor: '#ffffff',
+          useCORS: true
+        });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 190;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+        pdf.save('color-calculation-result.pdf');
+      } catch (error) {
+        showInlineError('ไม่สามารถ Export PDF ได้');
+      }
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c17e3b8b44ed03e',t:'MTc2OTAwOTgxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
