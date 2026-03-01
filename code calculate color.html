@@ -2,158 +2,216 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Fabric Dye Simulator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cool Tone Fabric Dye Studio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+*{box-sizing:border-box;margin:0;padding:0}
+
 body{
-    margin:0;
-    font-family:system-ui,-apple-system,BlinkMacSystemFont;
-    background:#f2f2f2;
-    color:#111;
+    font-family:'Prompt',sans-serif;
+    min-height:100vh;
+    background:linear-gradient(135deg,#89f7fe,#66a6ff,#43e97b);
+    background-size:300% 300%;
+    animation:bgMove 12s ease infinite;
+    padding:40px 20px;
+    color:#04364A;
 }
+
+@keyframes bgMove{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+}
+
 .container{
-    max-width:1100px;
+    max-width:1200px;
     margin:auto;
-    padding:24px;
 }
+
+h1{
+    text-align:center;
+    font-weight:600;
+    margin-bottom:35px;
+    font-size:32px;
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:360px 1fr;
+    gap:30px;
+}
+
 .card{
-    background:#fff;
-    border-radius:16px;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-    padding:20px;
-    margin-bottom:24px;
+    background:rgba(255,255,255,0.7);
+    backdrop-filter:blur(25px);
+    border-radius:28px;
+    padding:28px;
+    box-shadow:0 25px 50px rgba(0,0,0,0.1);
 }
-h1{margin:0;font-size:28px}
-h3{margin-top:0}
-p{color:#555}
-label{display:block;margin-top:14px;font-size:14px}
-input[type=file]{margin-top:10px}
-input[type=range]{width:100%}
-button{
-    margin-top:20px;
-    padding:14px 20px;
-    font-size:16px;
+
+.card h3{
+    margin-bottom:15px;
+    font-weight:500;
+}
+
+input[type=file]{
+    width:100%;
+    margin-bottom:18px;
+    background:#ffffffaa;
+    padding:10px;
+    border-radius:12px;
     border:none;
-    border-radius:12px;
+}
+
+.slider-box{
+    margin-bottom:20px;
+}
+
+input[type=range]{
+    width:100%;
+    accent-color:#00c9a7;
+}
+
+.value{
+    font-size:13px;
+    margin-top:5px;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:18px;
+    font-weight:600;
+    font-size:15px;
     cursor:pointer;
-    background:#111;
-    color:#fff;
+    transition:0.3s;
 }
+
+.primary{
+    background:linear-gradient(90deg,#00c9a7,#009efd);
+    color:white;
+    box-shadow:0 8px 20px rgba(0,201,167,0.4);
+}
+
+.primary:hover{
+    transform:translateY(-3px);
+    box-shadow:0 12px 25px rgba(0,158,253,0.5);
+}
+
+.download{
+    background:linear-gradient(90deg,#43e97b,#38f9d7);
+    color:#04364A;
+    margin-top:15px;
+    box-shadow:0 8px 20px rgba(67,233,123,0.4);
+}
+
+.download:hover{
+    transform:translateY(-3px);
+}
+
 .preview{
-    display:flex;
+    display:grid;
+    grid-template-columns:1fr 1fr;
     gap:20px;
-    flex-wrap:wrap;
 }
+
 canvas{
-    max-width:100%;
-    border-radius:12px;
-    background:#eaeaea;
-    cursor:crosshair;
+    width:100%;
+    border-radius:20px;
+    background:white;
+    box-shadow:0 15px 30px rgba(0,0,0,0.1);
 }
-.small{font-size:13px;color:#666}
-.color-box{
-    width:40px;
+
+.color-preview{
     height:40px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    display:inline-block;
-    vertical-align:middle;
-    margin-right:10px;
+    border-radius:14px;
+    margin-top:10px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+
+@media(max-width:900px){
+    .layout{
+        grid-template-columns:1fr;
+    }
+    .preview{
+        grid-template-columns:1fr;
+    }
 }
 </style>
 </head>
 
 <body>
+
 <div class="container">
+<h1>🌊 Cool Tone Fabric Dye Studio</h1>
+
+<div class="layout">
 
 <div class="card">
-    <h1>Fabric Dye Simulator</h1>
-    <p>จำลองการย้อมผ้าแบบสมจริง (ย้อมเฉพาะตัวเสื้อ ไม่กระทบพื้นหลัง)</p>
+<h3>1️⃣ เลือกสี</h3>
+<input type="file" id="colorInput" accept="image/*">
+<div class="color-preview" id="colorBox"></div>
+
+<h3>2️⃣ อัปโหลดเสื้อ</h3>
+<input type="file" id="fabricInput" accept="image/*">
+
+<h3>3️⃣ ปรับความเข้มสี</h3>
+
+<div class="slider-box">
+<input type="range" id="strength" min="0" max="1" step="0.01" value="0.7">
+<div class="value">ความเข้ม: <span id="strengthVal">70%</span></div>
+</div>
+
+<button class="primary" onclick="simulate()">🎨 เริ่มย้อมสี</button>
+<button class="download" onclick="download()">⬇ ดาวน์โหลดภาพ</button>
+
 </div>
 
 <div class="card">
-    <h3>1) อัปโหลดภาพสีที่ใช้ย้อม</h3>
-    <input type="file" id="colorInput" accept="image/*">
-    <p id="colorInfo" class="small">
-        <span class="color-box" id="colorPreview"></span>
-        ยังไม่ได้เลือกสี
-    </p>
+<h3>ผลลัพธ์</h3>
+<div class="preview">
+<canvas id="before"></canvas>
+<canvas id="after"></canvas>
+</div>
 </div>
 
-<div class="card">
-    <h3>2) อัปโหลดภาพผ้า</h3>
-    <input type="file" id="fabricInput" accept="image/*">
-    <p class="small">💡 คลิกบนภาพผ้าเพื่อดูดสี (Eyedropper)</p>
 </div>
-
-<div class="card">
-    <h3>3) ควบคุมการย้อม</h3>
-
-    <label>Mask Strength
-        <input type="range" id="maskStrength" min="0" max="1" step="0.01" value="1">
-    </label>
-
-    <label>Dye Strength
-        <input type="range" id="dyeStrength" min="0" max="1" step="0.01" value="0.7">
-    </label>
-
-    <label>Intensity
-        <input type="range" id="intensity" min="0" max="1" step="0.01" value="0.7">
-    </label>
-
-    <label>Alpha (การดูดซับผ้า)
-        <input type="range" id="alpha" min="0" max="1" step="0.01" value="1">
-    </label>
-
-    <button onclick="simulate()">เริ่มจำลองการย้อมผ้า</button>
-</div>
-
-<div class="card">
-    <h3>4) ผลลัพธ์</h3>
-    <div class="preview">
-        <canvas id="before"></canvas>
-        <canvas id="after"></canvas>
-    </div>
-    <button onclick="download()">ดาวน์โหลดภาพผลลัพธ์</button>
-</div>
-
 </div>
 
 <script>
-const colorInput = document.getElementById("colorInput");
-const fabricInput = document.getElementById("fabricInput");
-const beforeCanvas = document.getElementById("before");
-const afterCanvas = document.getElementById("after");
-const bctx = beforeCanvas.getContext("2d");
-const actx = afterCanvas.getContext("2d");
+const colorInput=document.getElementById("colorInput");
+const fabricInput=document.getElementById("fabricInput");
+const beforeCanvas=document.getElementById("before");
+const afterCanvas=document.getElementById("after");
+const bctx=beforeCanvas.getContext("2d");
+const actx=afterCanvas.getContext("2d");
+const strengthSlider=document.getElementById("strength");
+const strengthVal=document.getElementById("strengthVal");
+const colorBox=document.getElementById("colorBox");
 
-const colorInfo = document.getElementById("colorInfo");
-const colorPreview = document.getElementById("colorPreview");
+let dyeColor={r:0,g:150,b:255};
+let fabricImage=null;
 
-const maskStrengthInput = document.getElementById("maskStrength");
-const dyeStrengthInput  = document.getElementById("dyeStrength");
-const intensityInput    = document.getElementById("intensity");
-const alphaInput        = document.getElementById("alpha");
+strengthSlider.oninput=()=>{
+    strengthVal.textContent=Math.round(strengthSlider.value*100)+"%";
+};
 
-let dyeColor = {r:0,g:0,b:0};
-let fabricImage = null;
-
-// ================= COLOR IMAGE =================
-colorInput.onchange = e=>{
-    const img = new Image();
-    img.onload = ()=>{
-        const c = document.createElement("canvas");
-        c.width = img.width;
-        c.height = img.height;
-        const ctx = c.getContext("2d");
+colorInput.onchange=e=>{
+    const img=new Image();
+    img.onload=()=>{
+        const c=document.createElement("canvas");
+        c.width=img.width;
+        c.height=img.height;
+        const ctx=c.getContext("2d");
         ctx.drawImage(img,0,0);
+        const data=ctx.getImageData(0,0,c.width,c.height).data;
 
-        const data = ctx.getImageData(0,0,c.width,c.height).data;
         let r=0,g=0,b=0,count=0;
-
         for(let i=0;i<data.length;i+=4){
-            if(data[i+3]<200) continue;
             r+=data[i];
             g+=data[i+1];
             b+=data[i+2];
@@ -166,92 +224,51 @@ colorInput.onchange = e=>{
             b:Math.round(b/count)
         };
 
-        updateColorInfo("จากภาพสี");
+        colorBox.style.background=`rgb(${dyeColor.r},${dyeColor.g},${dyeColor.b})`;
     };
     img.src=URL.createObjectURL(e.target.files[0]);
 };
 
-// ================= FABRIC IMAGE =================
-fabricInput.onchange = e=>{
+fabricInput.onchange=e=>{
     fabricImage=new Image();
     fabricImage.onload=()=>{
         beforeCanvas.width=fabricImage.width;
         beforeCanvas.height=fabricImage.height;
         afterCanvas.width=fabricImage.width;
         afterCanvas.height=fabricImage.height;
-
         bctx.drawImage(fabricImage,0,0);
         actx.drawImage(fabricImage,0,0);
     };
     fabricImage.src=URL.createObjectURL(e.target.files[0]);
 };
 
-// ================= EYEDROPPER =================
-beforeCanvas.addEventListener("click",e=>{
-    const rect=beforeCanvas.getBoundingClientRect();
-    const x=Math.floor((e.clientX-rect.left)*beforeCanvas.width/rect.width);
-    const y=Math.floor((e.clientY-rect.top)*beforeCanvas.height/rect.height);
-    const px=bctx.getImageData(x,y,1,1).data;
-
-    dyeColor={r:px[0],g:px[1],b:px[2]};
-    updateColorInfo("จาก Eyedropper");
-});
-
-// ================= SIMULATE DYE =================
 function simulate(){
-    if(!fabricImage){ alert("กรุณาอัปโหลดภาพผ้า"); return; }
+    if(!fabricImage){alert("กรุณาอัปโหลดภาพก่อน");return;}
 
-    const maskStrength = +maskStrengthInput.value;
-    const dyeStrength  = +dyeStrengthInput.value;
-    const intensity    = +intensityInput.value;
-    const alpha        = +alphaInput.value;
-
-    const img = bctx.getImageData(0,0,beforeCanvas.width,beforeCanvas.height);
-    const d = img.data;
+    const strength=+strengthSlider.value;
+    const img=bctx.getImageData(0,0,beforeCanvas.width,beforeCanvas.height);
+    const d=img.data;
 
     for(let i=0;i<d.length;i+=4){
-        const r=d[i], g=d[i+1], b=d[i+2], a=d[i+3];
+        const r=d[i], g=d[i+1], b=d[i+2];
+        const luminance=(r+g+b)/3/255;
+        const blend=strength*(0.5+0.5*luminance);
 
-        // ✅ ย้อมทุก pixel ของเสื้อ (ไม่แตะพื้นหลัง)
-        if(a < 20) continue;
-
-        // 🧠 รักษาเงา / ลายผ้า
-        const luminance = (r+g+b)/3 / 255;
-        const absorption = 0.3 + 0.7*luminance;
-
-        const blend =
-            dyeStrength *
-            intensity *
-            maskStrength *
-            absorption;
-
-        d[i]   = r*(1-blend) + dyeColor.r*blend;
-        d[i+1] = g*(1-blend) + dyeColor.g*blend;
-        d[i+2] = b*(1-blend) + dyeColor.b*blend;
-        d[i+3] = a*alpha;
+        d[i]=r*(1-blend)+dyeColor.r*blend;
+        d[i+1]=g*(1-blend)+dyeColor.g*blend;
+        d[i+2]=b*(1-blend)+dyeColor.b*blend;
     }
 
     actx.putImageData(img,0,0);
 }
 
-// ================= DOWNLOAD =================
 function download(){
-    const a=document.createElement("a");
-    a.download="fabric-dye-result.png";
-    a.href=afterCanvas.toDataURL("image/png");
-    a.click();
-}
-
-// ================= UI =================
-function updateColorInfo(source){
-    colorPreview.style.background =
-        `rgb(${dyeColor.r},${dyeColor.g},${dyeColor.b})`;
-
-    colorInfo.innerHTML = `
-        <span class="color-box" style="background:rgb(${dyeColor.r},${dyeColor.g},${dyeColor.b})"></span>
-        ${source}: RGB(${dyeColor.r}, ${dyeColor.g}, ${dyeColor.b})
-    `;
+    const link=document.createElement("a");
+    link.download="cool-dye-result.png";
+    link.href=afterCanvas.toDataURL();
+    link.click();
 }
 </script>
+
 </body>
 </html>
